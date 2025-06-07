@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Strength Evaluator</title>
+  <meta name="description" content="Intelligently evaluate your password strength with feedback and breach checking." />
+  <!-- TailwindCSS CDN for utility-first styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-gray-600 min-h-screen flex flex-col">
+  <header class="sticky top-0 bg-white shadow-sm z-30">
+    <nav class="max-w-[1200px] mx-auto px-6 py-4 flex justify-between items-center">
+      <a href="/" class="text-3xl font-extrabold tracking-tight text-gray-900 select-none">PassEval</a>
+    </nav>
+  </header>
+
+  <main class="flex-grow max-w-[1200px] mx-auto px-6 pt-16 pb-20 flex flex-col">
+    <section class="text-center max-w-3xl mx-auto mb-16">
+      <h1 class="text-5xl font-extrabold text-gray-900 mb-4 leading-tight">Intelligent Password Strength Evaluation</h1>
+      <p class="text-xl text-gray-500 max-w-xl mx-auto">
+        Securely evaluate your password's strength with entropy analysis, pattern detection, and breach exposure checks.
+      </p>
+    </section>
+
+    <section class="max-w-xl mx-auto w-full">
+      <form method="POST" class="bg-white rounded-lg shadow-md p-8 space-y-6">
+        <div>
+          <label for="password" class="block text-lg font-semibold text-gray-800 mb-2">
+            Enter Password to Evaluate
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autocomplete="off"
+            placeholder="Type your password here"
+            class="w-full border border-gray-300 rounded-md px-4 py-3 text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+            value="{{ password|default('') }}"
+          />
+        </div>
+        <div class="flex items-center space-x-3">
+          <input 
+            type="checkbox" 
+            id="check_hibp" 
+            name="check_hibp" 
+            class="h-5 w-5 text-black border-gray-300 rounded focus:ring-black focus:ring-2"
+            {% if check_hibp %}checked{% endif %}
+          />
+          <label for="check_hibp" class="text-gray-700 select-none">Check for breach exposure using HaveIBeenPwned</label>
+        </div>
+        <button
+          type="submit"
+          class="mt-4 w-full bg-black text-white text-lg font-semibold py-3 rounded-md shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-black transition"
+        >
+          Evaluate Password
+        </button>
+        {% if error %}
+          <p class="mt-3 text-red-600 font-medium" role="alert">{{ error }}</p>
+        {% endif %}
+      </form>
+    </section>
+
+    {% if result %}
+    <section class="max-w-4xl mx-auto mt-16 bg-white rounded-lg shadow-md p-8 space-y-10">
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-6">Evaluation Results</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Password Strength Score</h3>
+            <p class="text-black text-3xl font-extrabold">{{ result.password_strength_score }}</p>
+            <p class="text-sm text-gray-500">Score range: 0 (weak) to 4 (strong)</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Entropy (bits)</h3>
+            <p class="text-black text-xl font-semibold">{{ result.entropy if result.entropy is not none else 'N/A' }}</p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Estimated Crack Times</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-1">
+              <li>Online throttling: {{ result.crack_time.online_throttling_100_per_hour }}</li>
+              <li>Online no throttling: {{ result.crack_time.online_no_throttling_10_per_second }}</li>
+              <li>Offline slow hash: {{ result.crack_time.offline_slow_hashing_1e4_per_second }}</li>
+              <li>Offline fast hash: {{ result.crack_time.offline_fast_hashing_1e10_per_second }}</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Breach Exposure Count</h3>
+            {% if result.breach_count > 0 %}
+              <p class="text-red-600 font-semibold">{{ result.breach_count }} times found in breaches</p>
+            {% else %}
+              <p class="text-green-700 font-semibold">No breaches found</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Feedback</h3>
+            {% if result.feedback.warning %}
+              <p class="text-yellow-700 font-semibold border-l-4 border-yellow-400 pl-3 mb-2">{{ result.feedback.warning }}</p>
+            {% endif %}
+            {% for suggestion in result.feedback.suggestions %}
+              <p class="text-gray-700 mb-1">• {{ suggestion }}</p>
+            {% endfor %}
+            {% if not result.feedback.warning and result.feedback.suggestions|length == 0 %}
+              <p class="text-gray-700 italic">No warnings or suggestions.</p>
+            {% endif %}
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">Detected Patterns</h3>
+            {% if result.patterns|length > 0 %}
+              <ul class="list-disc list-inside text-gray-700 space-y-1">
+                {% for p in result.patterns %}
+                  <li>{{ p }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-gray-700 italic">No dictionary or pattern matches detected.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+  </main>
+
+  <footer class="bg-gray-50 py-6 text-center text-sm text-gray-400 select-none">
+    &copy; 2024 PassEval &mdash; Password Strength Evaluator
+  </footer>
+</body>
+</html>
+
