@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>URL Safety Analyzer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap');
+
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #ffffff;
+      color: #6b7280;
+      font-size: 18px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container {
+      max-width: 720px;
+      width: 100%;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 1rem 0;
+      margin-bottom: 3rem;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      z-index: 10;
+    }
+
+    header .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #111827;
+      letter-spacing: -0.02em;
+      user-select: none;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    p.lead {
+      font-weight: 500;
+      font-size: 1.125rem;
+      color: #374151;
+      max-width: 460px;
+      margin: 0 auto 2.5rem auto;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      font-weight: 600;
+      color: #374151;
+      user-select: none;
+    }
+
+    input[type=text], input[type=password] {
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      color: #111827;
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+    }
+    input[type=text]:focus, input[type=password]:focus {
+      border-color: #2563eb;
+      outline: 2px solid #bfdbfe;
+    }
+
+    button {
+      padding: 0.85rem 1.5rem;
+      background-color: #111827;
+      color: white;
+      font-weight: 700;
+      font-size: 1.125rem;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      align-self: center;
+      width: 100%;
+      max-width: 240px;
+      user-select: none;
+    }
+    button:hover,
+    button:focus-visible {
+      background-color: #2563eb;
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    .result-card {
+      background: #f9fafb;
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      padding: 1.5rem 2rem;
+      color: #111827;
+    }
+
+    .result-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .result-section h3 {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+    }
+
+    .flags-list, .findings-list {
+      list-style: inside disc;
+      color: #4b5563;
+      max-height: 200px;
+      overflow-y:auto;
+      padding-left: 1rem;
+      margin: 0;
+    }
+
+    .flags-list li, .findings-list li {
+      padding: 0.125rem 0;
+    }
+
+    pre {
+      background: #e5e7eb;
+      color: #111827;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      max-height: 250px;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2.25rem;
+      }
+      button {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" aria-label="URL Safety Analyzer Logo">🔒 URL Safety Analyzer</div>
+  </header>
+
+  <main class="container" role="main" aria-live="polite">
+    <h1>Scan a URL for Safety</h1>
+    <p class="lead">Check if a URL might be phishing, malware, or suspicious with our multi-technique analyzer.</p>
+
+    <form id="urlForm" autocomplete="off" aria-describedby="form-desc" novalidate>
+      <label for="urlInput">URL to scan</label>
+      <input 
+        type="text" 
+        id="urlInput" 
+        name="url" 
+        placeholder="https://example.com" 
+        aria-required="true" 
+        required 
+        pattern="https?://.+"
+        spellcheck="false"
+        autocomplete="off"
+      />
+      <label for="apiKeyInput">Google Safe Browsing API Key</label>
+      <input 
+        type="password" 
+        id="apiKeyInput" 
+        name="api_key" 
+        placeholder="Enter your API key" 
+        aria-required="true" 
+        required 
+        spellcheck="false"
+        autocomplete="off"
+      />
+      <button type="submit" aria-label="Scan URL for safety">Scan URL</button>
+    </form>
+
+    <section id="resultSection" aria-live="assertive" tabindex="-1" style="display:none;">
+      <div class="result-card" role="region" aria-label="Scan results">
+        <div class="result-section">
+          <h3>URL Scanned</h3>
+          <p id="resultUrl" style="word-break: break-all;"></p>
+        </div>
+        <div class="result-section">
+          <h3>Heuristic Analysis Score</h3>
+          <p id="heuristicScore"></p>
+          <ul id="heuristicFlags" class="flags-list" aria-label="Heuristic red flags"></ul>
+        </div>
+        <div class="result-section">
+          <h3>Blacklist Hits (Google Safe Browsing)</h3>
+          <pre id="blacklistHits">No blacklist hits</pre>
+        </div>
+        <div class="result-section">
+          <h3>HTML Content Findings</h3>
+          <ul id="htmlFindings" class="findings-list" aria-label="HTML content suspicious findings"></ul>
+        </div>
+        <div class="result-section">
+          <h3>Final Risk Level</h3>
+          <p id="finalRiskLevel" style="font-weight: 700; font-size: 1.25rem;"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('urlForm');
+    const resultSection = document.getElementById('resultSection');
+    const resultUrl = document.getElementById('resultUrl');
+    const heuristicScore = document.getElementById('heuristicScore');
+    const heuristicFlags = document.getElementById('heuristicFlags');
+    const blacklistHits = document.getElementById('blacklistHits');
+    const htmlFindings = document.getElementById('htmlFindings');
+    const finalRiskLevel = document.getElementById('finalRiskLevel');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Validate URL input pattern
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      // Clear previous results
+      resultUrl.textContent = '';
+      heuristicScore.textContent = '';
+      heuristicFlags.innerHTML = '';
+      blacklistHits.textContent = 'Loading...';
+      htmlFindings.innerHTML = '';
+      finalRiskLevel.textContent = '';
+      resultSection.style.display = 'block';
+
+      const url = form.url.value.trim();
+      const api_key = form.api_key.value.trim();
+
+      try {
+        const response = await fetch('/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url, api_key })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to analyze URL');
+        }
+        const data = await response.json();
+
+        resultUrl.textContent = data.url;
+        heuristicScore.textContent = data.heuristic_score;
+        if (Array.isArray(data.heuristic_flags) && data.heuristic_flags.length) {
+          data.heuristic_flags.forEach(flag => {
+            const li = document.createElement('li');
+            li.textContent = flag;
+            heuristicFlags.appendChild(li);
+          });
+        } else {
+          heuristicFlags.textContent = "No red flags detected.";
+        }
+
+        if (data.blacklist_hits && data.blacklist_hits.matches) {
+          blacklistHits.textContent = JSON.stringify(data.blacklist_hits.matches, null, 2);
+        } else {
+          blacklistHits.textContent = 'No blacklist hits';
+        }
+
+        if (Array.isArray(data.html_findings) && data.html_findings.length) {
+          data.html_findings.forEach(finding => {
+            const li = document.createElement('li');
+            li.textContent = finding;
+            htmlFindings.appendChild(li);
+          });
+        } else {
+          htmlFindings.textContent = "No suspicious HTML content found.";
+        }
+
+        finalRiskLevel.textContent = data.final_risk_level.charAt(0).toUpperCase() + data.final_risk_level.slice(1);
+
+        // Scroll result section into view for screen reader users
+        resultSection.focus();
+
+      } catch (error) {
+        blacklistHits.textContent = '';
+        heuristicScore.textContent = '';
+        heuristicFlags.textContent = '';
+        htmlFindings.textContent = '';
+        finalRiskLevel.textContent = '';
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>
+
