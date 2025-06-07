@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Strength and Entropy Evaluation Tool</title>
+  <style>
+    /* Import Inter font from Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+    :root {
+      --color-bg: #ffffff;
+      --color-text: #374151;
+      --color-text-muted: #6b7280;
+      --color-primary: #111827;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-error: #ef4444;
+      --color-card-bg: #f9fafb;
+      --radius: 0.75rem;
+      --shadow-light: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-medium: 0 4px 8px rgba(0,0,0,0.1);
+      --transition-speed: 0.3s;
+      font-size: 18px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-feature-settings: "liga" 1;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 90%;
+      margin: 0 auto;
+      padding: 4rem 0 6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      background: var(--color-bg);
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 10%;
+      box-shadow: var(--shadow-light);
+      z-index: 1000;
+    }
+
+    header .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--color-primary);
+      user-select: none;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--color-text-muted);
+      font-weight: 600;
+      margin-left: 2rem;
+      font-size: 1rem;
+      transition: color var(--transition-speed);
+    }
+
+    nav a:hover,
+    nav a:focus {
+      color: var(--color-primary);
+      outline: none;
+    }
+
+    main {
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    .hero {
+      text-align: center;
+      max-width: 720px;
+      margin-bottom: 4rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      font-weight: 500;
+      font-size: 1.25rem;
+      color: var(--color-text-muted);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      user-select: none;
+    }
+
+    .cta-button {
+      margin-top: 2rem;
+      background-color: var(--color-primary);
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+      user-select: none;
+    }
+
+    .cta-button:hover,
+    .cta-button:focus {
+      background-color: #000000;
+      outline: none;
+      transform: scale(1.05);
+    }
+
+    .evaluation-section {
+      width: 100%;
+      max-width: 740px;
+      background: var(--color-card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-medium);
+      padding: 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      user-select: none;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 1.125rem;
+      margin-bottom: 0.75rem;
+      color: var(--color-primary);
+    }
+
+    input[type="password"] {
+      width: 100%;
+      font-size: 1.125rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      border: 1.5px solid #d1d5db;
+      transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+      font-family: 'Inter', sans-serif;
+      outline-offset: 2px;
+    }
+    input[type="password"]:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.2);
+      outline: none;
+    }
+
+    .result-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light);
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+      will-change: transform;
+    }
+    .card:hover,
+    .card:focus-within {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 15px rgba(0,0,0,0.15);
+      outline: none;
+    }
+
+    .card h3 {
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--color-primary);
+      user-select: text;
+    }
+
+    .score-bar {
+      position: relative;
+      height: 12px;
+      border-radius: 9999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .score-fill {
+      height: 100%;
+      transition: width 0.35s ease-in-out;
+      border-radius: 9999px;
+      background: var(--color-error);
+      width: 0%;
+    }
+
+    .score-fill.level0 { background: #ef4444; } /* red */
+    .score-fill.level1 { background: #f87171; } /* light red */
+    .score-fill.level2 { background: #fbbf24; } /* yellow */
+    .score-fill.level3 { background: #60a5fa; } /* blue */
+    .score-fill.level4 { background: #10b981; } /* green */
+
+    .hint {
+      color: var(--color-warning);
+      font-weight: 600;
+      font-size: 0.95rem;
+      user-select: text;
+    }
+
+    .hint.good {
+      color: var(--color-success);
+    }
+
+    .hint.error {
+      color: var(--color-error);
+    }
+
+    .breach-info {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--color-primary);
+      user-select: text;
+    }
+
+    .breach-warning {
+      color: var(--color-error);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+    }
+
+    a {
+      color: var(--color-primary);
+      outline-offset: 2px;
+      transition: color var(--transition-speed);
+      text-decoration: none;
+    }
+    a:hover,
+    a:focus {
+      color: #000000;
+      outline: none;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 3rem 1.5rem 4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header role="banner" aria-label="Primary navigation">
+    <div class="container" style="display:flex; justify-content: space-between; align-items: center; padding: 0;">
+      <div class="logo" tabindex="0">PwdEvaluator</div>
+      <nav role="navigation" aria-label="Main menu">
+        <a href="#password" tabindex="0">Evaluate</a>
+        <a href="https://github.com/dropbox/zxcvbn" target="_blank" rel="noopener" tabindex="0">zxcvbn</a>
+        <a href="https://haveibeenpwned.com/API/v3#PwnedPasswords" target="_blank" rel="noopener" tabindex="0">HIBP API</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Password Strength and Entropy Evaluation Tool</h1>
+      <p>An intelligent evaluator measuring password entropy, patterns, and data breach exposure.</p>
+    </section>
+
+    <section class="evaluation-section" aria-label="Password evaluation form">
+      <label for="password">Enter Password to Evaluate</label>
+      <input type="password" id="password" aria-describedby="passwordHelp" autocomplete="new-password" placeholder="Type your password..." spellcheck="false" aria-live="polite" aria-atomic="true" />
+      <div id="passwordHelp" class="hint" aria-live="polite" style="margin-top: 0.5rem;">Start typing a password to see the evaluation.</div>
+
+      <div class="result-cards" role="region" aria-live="polite" aria-atomic="true" style="margin-top: 2rem;">
+        <div class="card" tabindex="0" aria-label="Password entropy score">
+          <h3>Entropy (bits)</h3>
+          <div id="entropyScore" aria-live="polite" style="font-weight: 700; font-size: 2rem; color: var(--color-primary); user-select: text;">0</div>
+        </div>
+
+        <div class="card" tabindex="0" aria-label="Password strength score">
+          <h3>Strength</h3>
+          <div id="strengthLabel" style="font-weight: 700; font-size: 1.7rem; user-select: text;">-</div>
+          <div class="score-bar" aria-hidden="true">
+            <div id="strengthBar" class="score-fill level0" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="card" tabindex="0" aria-label="Password pattern feedback">
+          <h3>Feedback & Warnings</h3>
+          <ul id="feedbackList" style="list-style: none; padding-left: 0; margin: 0; color: var(--color-warning); font-weight: 600;"></ul>
+        </div>
+
+        <div class="card" tabindex="0" aria-label="Password breach exposure">
+          <h3>Breached?</h3>
+          <div id="breachInfo" class="breach-info" style="font-weight: 700; font-size: 1.3rem; user-select: text;">N/A</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Powered by <a href="https://github.com/dropbox/zxcvbn" target="_blank" rel="noopener">zxcvbn</a> and <a href="https://haveibeenpwned.com/API/v3#PwnedPasswords" target="_blank" rel="noopener">HaveIBeenPwned API</a></p>
+  </footer>
+
+  <!-- Load zxcvbn from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js" integrity="sha512-lgw8nlCekC3bFt2KpII+LqRpPUL+QQY20mmG2ErQzotgKUIMOt7cNzoUzC96Vw5m35ZX4bcVhU0j1IX8OmG6Pw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    const passwordInput = document.getElementById('password');
+    const entropyScoreEl = document.getElementById('entropyScore');
+    const strengthLabelEl = document.getElementById('strengthLabel');
+    const strengthBarEl = document.getElementById('strengthBar');
+    const feedbackListEl = document.getElementById('feedbackList');
+    const breachInfoEl = document.getElementById('breachInfo');
+    const passwordHelpEl = document.getElementById('passwordHelp');
+
+    // Map zxcvbn score to labels and colors
+    const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
+    const strengthLevelClasses = ['level0', 'level1', 'level2', 'level3', 'level4'];
+
+    // SHA-1 function from https://geraintluff.github.io/sha1/
+    function sha1(msg) {
+      function rotate_left(n,s) {
+        return (n << s) | (n >>> (32 - s));
+      }
+      function cvt_hex(val) {
+        let str = "";
+        let i;
+        let v;
+        for(i = 7; i >= 0; i--) {
+          v = (val >>> (i * 4)) & 0x0f;
+          str += v.toString(16);
+        }
+        return str;
+      }
+      function utf8_encode(string) {
+        string = string.replace(/\r\n/g,"\n");
+        let utftext = "";
+        for(let n = 0; n < string.length; n++) {
+          let c = string.charCodeAt(n);
+          if(c < 128) {
+            utftext += String.fromCharCode(c);
+          } else if((c > 127) && (c < 2048)) {
+            utftext += String.fromCharCode((c >> 6) | 192);
+            utftext += String.fromCharCode((c & 63) | 128);
+          } else {
+            utftext += String.fromCharCode((c >> 12) | 224);
+            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+            utftext += String.fromCharCode((c & 63) | 128);
+          }
+        }
+        return utftext;
+      }
+
+      let blockstart;
+      let i, j;
+      let W = new Array(80);
+      let H0 = 0x67452301;
+      let H1 = 0xEFCDAB89;
+      let H2 = 0x98BADCFE;
+      let H3 = 0x10325476;
+      let H4 = 0xC3D2E1F0;
+      let A, B, C, D, E;
+      let temp;
+
+      msg = utf8_encode(msg);
+      let msg_len = msg.length;
+
+      let word_array = [];
+      for(blockstart = 0; blockstart < msg_len - 3; blockstart += 4) {
+        j = msg.charCodeAt(blockstart) << 24 | msg.charCodeAt(blockstart + 1) << 16 |
+          msg.charCodeAt(blockstart + 2) << 8 | msg.charCodeAt(blockstart + 3);
+        word_array.push(j);
+      }
+
+      switch(msg_len % 4) {
+        case 0:
+          i = 0x080000000;
+          break;
+        case 1:
+          i = msg.charCodeAt(msg_len - 1) << 24 | 0x0800000;
+          break;
+        case 2:
+          i = msg.charCodeAt(msg_len - 2) << 24 | msg.charCodeAt(msg_len - 1) << 16 | 0x08000;
+          break;
+        case 3:
+          i = msg.charCodeAt(msg_len - 3) << 24 | msg.charCodeAt(msg_len - 2) << 16 | msg.charCodeAt(msg_len - 1) << 8 | 0x80;
+          break;
+      }
+
+      word_array.push(i);
+
+      while((word_array.length % 16) !== 14) word_array.push(0);
+
+      word_array.push(msg_len >>> 29);
+      word_array.push((msg_len << 3) & 0x0ffffffff);
+
+      for(j = 0; j < word_array.length; j += 16) {
+        for(i = 0; i < 16; i++) {
+          W[i] = word_array[j + i];
+        }
+        for(i = 16; i <= 79; i++) {
+          W[i] = rotate_left(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+        }
+
+        A = H0;
+        B = H1;
+        C = H2;
+        D = H3;
+        E = H4;
+
+        for(i = 0; i <= 19; i++) {
+          temp = (rotate_left(A, 5) + ((B & C) | (~B & D)) + E + W[i] + 0x5A827999) & 0x0ffffffff;
+          E = D;
+          D = C;
+          C = rotate_left(B, 30);
+          B = A;
+          A = temp;
+        }
+        for(i = 20; i <= 39; i++) {
+          temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
+          E = D;
+          D = C;
+          C = rotate_left(B, 30);
+          B = A;
+          A = temp;
+        }
+        for(i = 40; i <= 59; i++) {
+          temp = (rotate_left(A, 5) + ((B & C) | (B & D) | (C & D)) + E + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
+          E = D;
+          D = C;
+          C = rotate_left(B, 30);
+          B = A;
+          A = temp;
+        }
+        for(i = 60; i <= 79; i++) {
+          temp = (rotate_left(A, 5) + (B ^ C ^ D) + E + W[i] + 0xCA62C1D6) & 0x0ffffffff;
+          E = D;
+          D = C;
+          C = rotate_left(B, 30);
+          B = A;
+          A = temp;
+        }
+
+        H0 = (H0 + A) & 0x0ffffffff;
+        H1 = (H1 + B) & 0x0ffffffff;
+        H2 = (H2 + C) & 0x0ffffffff;
+        H3 = (H3 + D) & 0x0ffffffff;
+        H4 = (H4 + E) & 0x0ffffffff;
+      }
+
+      let sha1_hash = cvt_hex(H0) + cvt_hex(H1) + cvt_hex(H2) + cvt_hex(H3) + cvt_hex(H4);
+      return sha1_hash.toUpperCase();
+    }
+
+    async function checkHIBP(password) {
+      if (!password) return null;
+
+      const hash = sha1(password);
+      const prefix = hash.slice(0, 5);
+      const suffix = hash.slice(5);
+
+      try {
+        const resp = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+          method: 'GET',
+          headers: {
+            'Add-Padding': 'true'
+          }
+        });
+        if (!resp.ok) {
+          return null;
+        }
+        const text = await resp.text();
+        const lines = text.split('\n');
+        for (const line of lines) {
+          const [hashSuffix, count] = line.split(':');
+          if (hashSuffix.trim() === suffix) {
+            return parseInt(count.trim(), 10);
+          }
+        }
+        return 0;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    // Update UI with password evaluation results
+    async function evaluatePassword(password) {
+      if (!password) {
+        entropyScoreEl.textContent = '0';
+        strengthLabelEl.textContent = '-';
+        strengthBarEl.style.width = '0%';
+        strengthBarEl.className = 'score-fill level0';
+        feedbackListEl.innerHTML = '';
+        breachInfoEl.textContent = 'N/A';
+        passwordHelpEl.textContent = 'Start typing a password to see the evaluation.';
+        return;
+      }
+
+      const result = zxcvbn(password);
+
+      // Entropy in bits - zxcvbn supplies guesses_log10, entropy is guesses_log10 * log2(10)
+      const entropy = Math.round(result.guesses_log10 * Math.LOG2E * Math.log(10));
+
+      entropyScoreEl.textContent = entropy.toString();
+
+      // Strength label and bar according to zxcvbn score (0-4)
+      const score = result.score;
+      strengthLabelEl.textContent = strengthLabels[score];
+      strengthBarEl.style.width = ((score + 1) * 20) + '%';
+
+      // Update bar color class
+      strengthBarEl.className = 'score-fill ' + strengthLevelClasses[score];
+
+      // Feedback display
+      const feedbackMessages = [];
+      if (result.feedback.warning) {
+        feedbackMessages.push(result.feedback.warning);
+      }
+      if (result.feedback.suggestions) {
+        feedbackMessages.push(...result.feedback.suggestions);
+      }
+      feedbackListEl.innerHTML = '';
+      if (feedbackMessages.length > 0) {
+        for (const msg of feedbackMessages) {
+          const li = document.createElement('li');
+          li.textContent = msg;
+          li.className = 'hint';
+          feedbackListEl.appendChild(li);
+        }
+      } else {
+        const li = document.createElement('li');
+        li.textContent = 'No warnings. Good job!';
+        li.className = 'hint good';
+        feedbackListEl.appendChild(li);
+      }
+
+      // Check breach count from HIBP and update UI
+      breachInfoEl.textContent = 'Checking...';
+      const breachCount = await checkHIBP(password);
+      if (breachCount === null) {
+        breachInfoEl.textContent = 'Error querying breach data.';
+        breachInfoEl.classList.remove('breach-warning');
+      } else if (breachCount === 0) {
+        breachInfoEl.textContent = 'No breaches found.';
+        breachInfoEl.classList.remove('breach-warning');
+      } else {
+        breachInfoEl.textContent = `Found in breaches ${breachCount.toLocaleString()} times!`;
+        breachInfoEl.classList.add('breach-warning');
+      }
+    }
+
+    let evaluationDebounceTimeout = null;
+
+    passwordInput.addEventListener('input', () => {
+      if (evaluationDebounceTimeout) {
+        clearTimeout(evaluationDebounceTimeout);
+      }
+      evaluationDebounceTimeout = setTimeout(() => {
+        evaluatePassword(passwordInput.value);
+      }, 300);
+    });
+
+    // Evaluate empty input on page load
+    evaluatePassword('');
+  </script>
+</body>
+</html>
+
