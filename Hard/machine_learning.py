@@ -1,20 +1,16 @@
 import pandas as pd
+import pickle
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
-import os
-import joblib  # Import joblib for saving and loading models
 
-# Check current working directory
-print("Current Working Directory:", os.getcwd())
-
-# Load the dataset from a Parquet file
-file_path = r'C:\\Users\\Pritch\\Downloads\\archive\\cic-collection.parquet'  # Adjust path accordingly
+# Load only the first 1000 rows of the dataset
+file_path = r'C:\\Users\\Pritch\\Downloads\\archive\\cic-collection.parquet'
 data_full = pd.read_parquet(file_path)
-data = data_full  # Use the full dataset or limit to first 1000 rows for faster processing
+data = data_full.head(1000)
 
 # Define features and target variable
 features = [
@@ -29,71 +25,61 @@ features = [
 ]
 target = 'ClassLabel'
 
-# Drop rows with missing values (optional)
+# Drop missing values
 data = data.dropna(subset=features + [target])
 
-# Ensure target is categorical (strings like 'Benign', etc.)
+# Ensure target is categorical
 data[target] = data[target].astype('category')
 
-# Split into train/test
+# Train/test split
 X = data[features]
 y = data[target]
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.1, random_state=42, stratify=y
+)
 
-# Define the model file path
-model_file_path = 'random_forest_model.joblib'
+# File path for saving the model
+model_file_path = 'Network_Threat_ML2.pkl'
 
-# Check if the model already exists
+# Load or train model
 if os.path.exists(model_file_path):
-    # Load the model
-    model = joblib.load(model_file_path)
+    with open(model_file_path, 'rb') as f:
+        model = pickle.load(f)
     print("Model loaded from disk.")
 else:
-    # Train RandomForest
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
-    
-    # Save the model to disk
-    joblib.dump(model, model_file_path)
+    with open(model_file_path, 'wb') as f:
+        pickle.dump(model, f)
     print("Model trained and saved to disk.")
+    print("Saving model to:", os.path.abspath(model_file_path))
 
-# Predict test
+
+# Predict and evaluate
 y_pred = model.predict(X_test)
 
-# Complete classification report and overall accuracy
-print("Overall Classification Report:")
+print("\nOverall Classification Report:")
 print(classification_report(y_test, y_pred))
 print("Overall Accuracy: {:.4f}".format(accuracy_score(y_test, y_pred)))
 
-# Get list of class labels from the category dtype directly
+# Get class labels
 attack_types = data[target].cat.categories.tolist()
 
-# Prepare to plot correlation matrices and print per-class accuracies
-# Check available styles and set a default
-available_styles = plt.style.available
-if 'seaborn-whitegrid' in available_styles:
-    plt.style.use('seaborn-whitegrid')
-else:
-    plt.style.use('default')  # Fallback to default style
-
+# Plot correlation heatmaps per class
+plt.style.use('seaborn-whitegrid' if 'seaborn-whitegrid' in plt.style.available else 'default')
 sns.set(font_scale=1.1)
-num_classes = len(attack_types)
 
-# Create a figure large enough to hold subplots of correlation matrices
+num_classes = len(attack_types)
 fig_corr, axes = plt.subplots(nrows=2, ncols=4, figsize=(24, 10))
 axes = axes.flatten()
 
 for i, attack in enumerate(attack_types):
-    # Filter data for that attack type
+    if i >= len(axes):
+        break
     data_class = data[data[target] == attack]
-    
-    # Compute correlation matrix on features only
     corr = data_class[features].corr()
-    
-    # Plot correlation matrix heatmap for this class
     sns.heatmap(corr, ax=axes[i], annot=False, cmap='coolwarm', square=True,
-                cbar=i==num_classes-1,  # only last plot has color bar
-                vmin=-1, vmax=1)
+                cbar=i == num_classes - 1, vmin=-1, vmax=1)
     axes[i].set_title(f'Feature Correlation: {attack}', fontsize=14)
     axes[i].tick_params(axis='x', rotation=45)
     axes[i].tick_params(axis='y', rotation=0)
@@ -101,10 +87,9 @@ for i, attack in enumerate(attack_types):
 plt.tight_layout()
 plt.show()
 
-# Calculate test accuracy per class on the test set
+# Accuracy per class
 print("\nAccuracy for each class in test data:")
 for attack in attack_types:
-    # Get indices in test data where y_test == attack
     indices = y_test[y_test == attack].index
     if len(indices) == 0:
         print(f"- {attack}: No samples in test set.")
