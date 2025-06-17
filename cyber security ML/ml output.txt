@@ -1,0 +1,27 @@
+Overall Classification Report:
+              precision    recall  f1-score   support
+
+      Benign       0.99      0.99      0.99    718620
+      Botnet       1.00      0.99      0.99     14597
+  Bruteforce       1.00      1.00      1.00     10324
+        DDoS       1.00      1.00      1.00    123473
+         DoS       1.00      1.00      1.00     39734
+Infiltration       0.13      0.07      0.09      9486
+    Portscan       0.92      0.88      0.90       225
+   Webattack       0.97      0.85      0.91       300
+
+    accuracy                           0.98    916759
+   macro avg       0.88      0.85      0.86    916759
+weighted avg       0.98      0.98      0.98    916759
+
+Overall Accuracy: 0.9847
+
+Accuracy for each class in test data:
+- Benign: Accuracy = 0.9935 [718620 samples]
+- Botnet: Accuracy = 0.9912 [14597 samples]
+- Bruteforce: Accuracy = 0.9987 [10324 samples]
+- DDoS: Accuracy = 0.9989 [123473 samples]
+- DoS: Accuracy = 0.9960 [39734 samples]
+- Infiltration: Accuracy = 0.0717 [9486 samples]
+- Portscan: Accuracy = 0.8756 [225 samples]
+- Webattack: Accuracy = 0.8533 [300 samples]

@@ -1,0 +1,184 @@
+Benign:
+{
+  "Flow Duration": 120000,
+  "Total Fwd Packets": 45,
+  "Total Backward Packets": 50,
+  "Fwd Packets Length Total": 34000,
+  "Bwd Packets Length Total": 36000,
+  "Fwd Packet Length Max": 1500,
+  "Fwd Packet Length Mean": 755,
+  "Fwd Packet Length Std": 180,
+  "Bwd Packet Length Max": 1480,
+  "Bwd Packet Length Mean": 720,
+  "Fwd Seg Size Min": 20,
+  "Active Mean": 15000,
+  "Active Std": 2000,
+  "Active Max": 20000,
+  "Active Min": 10000,
+  "Idle Mean": 8000,
+  "Idle Std": 1000,
+  "Idle Max": 10000,
+  "Idle Min": 6000
+}
+
+Botet
+{
+  "Flow Duration": 300000,
+  "Total Fwd Packets": 20,
+  "Total Backward Packets": 20,
+  "Fwd Packets Length Total": 5000,
+  "Bwd Packets Length Total": 4800,
+  "Fwd Packet Length Max": 300,
+  "Fwd Packet Length Mean": 250,
+  "Fwd Packet Length Std": 25,
+  "Bwd Packet Length Max": 310,
+  "Bwd Packet Length Mean": 240,
+  "Fwd Seg Size Min": 10,
+  "Active Mean": 30000,
+  "Active Std": 5000,
+  "Active Max": 40000,
+  "Active Min": 20000,
+  "Idle Mean": 60000,
+  "Idle Std": 5000,
+  "Idle Max": 70000,
+  "Idle Min": 50000
+}
+
+bruteforce: 
+{
+  "Flow Duration": 3000,
+  "Total Fwd Packets": 8,
+  "Total Backward Packets": 3,
+  "Fwd Packets Length Total": 800,
+  "Bwd Packets Length Total": 400,
+  "Fwd Packet Length Max": 200,
+  "Fwd Packet Length Mean": 100,
+  "Fwd Packet Length Std": 30,
+  "Bwd Packet Length Max": 150,
+  "Bwd Packet Length Mean": 130,
+  "Fwd Seg Size Min": 8,
+  "Active Mean": 1000,
+  "Active Std": 200,
+  "Active Max": 1200,
+  "Active Min": 800,
+  "Idle Mean": 200,
+  "Idle Std": 100,
+  "Idle Max": 500,
+  "Idle Min": 100
+}
+
+ddos
+{
+  "Flow Duration": 20000,
+  "Total Fwd Packets": 2000,
+  "Total Backward Packets": 0,
+  "Fwd Packets Length Total": 1200000,
+  "Bwd Packets Length Total": 0,
+  "Fwd Packet Length Max": 600,
+  "Fwd Packet Length Mean": 500,
+  "Fwd Packet Length Std": 50,
+  "Bwd Packet Length Max": 0,
+  "Bwd Packet Length Mean": 0,
+  "Fwd Seg Size Min": 8,
+  "Active Mean": 1000,
+  "Active Std": 100,
+  "Active Max": 1200,
+  "Active Min": 900,
+  "Idle Mean": 10,
+  "Idle Std": 5,
+  "Idle Max": 20,
+  "Idle Min": 5
+}
+
+dos
+{
+  "Flow Duration": 15000,
+  "Total Fwd Packets": 1000,
+  "Total Backward Packets": 0,
+  "Fwd Packets Length Total": 500000,
+  "Bwd Packets Length Total": 0,
+  "Fwd Packet Length Max": 520,
+  "Fwd Packet Length Mean": 490,
+  "Fwd Packet Length Std": 15,
+  "Bwd Packet Length Max": 0,
+  "Bwd Packet Length Mean": 0,
+  "Fwd Seg Size Min": 4,
+  "Active Mean": 800,
+  "Active Std": 80,
+  "Active Max": 1000,
+  "Active Min": 600,
+  "Idle Mean": 15,
+  "Idle Std": 5,
+  "Idle Max": 25,
+  "Idle Min": 10
+}
+
+infiltration
+{
+  "Flow Duration": 180000,
+  "Total Fwd Packets": 18,
+  "Total Backward Packets": 22,
+  "Fwd Packets Length Total": 4200,
+  "Bwd Packets Length Total": 4900,
+  "Fwd Packet Length Max": 270,
+  "Fwd Packet Length Mean": 230,
+  "Fwd Packet Length Std": 40,
+  "Bwd Packet Length Max": 290,
+  "Bwd Packet Length Mean": 250,
+  "Fwd Seg Size Min": 10,
+  "Active Mean": 20000,
+  "Active Std": 3000,
+  "Active Max": 25000,
+  "Active Min": 15000,
+  "Idle Mean": 40000,
+  "Idle Std": 5000,
+  "Idle Max": 50000,
+  "Idle Min": 30000
+}
+
+portscan
+{
+  "Flow Duration": 1000,
+  "Total Fwd Packets": 2,
+  "Total Backward Packets": 1,
+  "Fwd Packets Length Total": 200,
+  "Bwd Packets Length Total": 100,
+  "Fwd Packet Length Max": 150,
+  "Fwd Packet Length Mean": 100,
+  "Fwd Packet Length Std": 20,
+  "Bwd Packet Length Max": 100,
+  "Bwd Packet Length Mean": 100,
+  "Fwd Seg Size Min": 5,
+  "Active Mean": 400,
+  "Active Std": 50,
+  "Active Max": 500,
+  "Active Min": 300,
+  "Idle Mean": 100,
+  "Idle Std": 30,
+  "Idle Max": 150,
+  "Idle Min": 50
+}
+
+
+webattack
+{
+  "Flow Duration": 25000,
+  "Total Fwd Packets": 30,
+  "Total Backward Packets": 15,
+  "Fwd Packets Length Total": 6000,
+  "Bwd Packets Length Total": 3000,
+  "Fwd Packet Length Max": 800,
+  "Fwd Packet Length Mean": 200,
+  "Fwd Packet Length Std": 90,
+  "Bwd Packet Length Max": 600,
+  "Bwd Packet Length Mean": 200,
+  "Fwd Seg Size Min": 16,
+  "Active Mean": 7000,
+  "Active Std": 1000,
+  "Active Max": 9000,
+  "Active Min": 5000,
+  "Idle Mean": 2000,
+  "Idle Std": 300,
+  "Idle Max": 3000,
+  "Idle Min": 1500
+}
