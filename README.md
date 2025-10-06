@@ -4,7 +4,7 @@ A comprehensive collection of cybersecurity tools, machine learning models, and 
 
 ## Project Structure
 
-### 🤖 Machine Learning & Threat Detection
+### Machine Learning & Threat Detection
 - **`cyber security ML/`** - Advanced machine learning models for network threat detection
   - Network intrusion detection using Random Forest classifier
   - Correlation analysis for different attack types (DDoS, Brute Force, Botnet, etc.)
@@ -148,5 +148,6 @@ Feel free to contribute by:
 - Reporting issues or suggestions
 
 ---
+
 
 *Last updated: October 2025*
